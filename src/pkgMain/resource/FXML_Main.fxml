@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
@@ -9,6 +10,7 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.effect.Glow?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
@@ -50,7 +52,7 @@
       <TextField fx:id="tfIp" layoutX="522.0" layoutY="669.0" prefHeight="26.0" prefWidth="193.0" promptText="IP" />
       <Button fx:id="btnSetIp" layoutX="715.0" layoutY="669.0" mnemonicParsing="false" onAction="#onbtnClick" text="set" />
       <Label fx:id="lblMessage" layoutX="19.0" layoutY="664.0" prefHeight="36.0" prefWidth="352.0" style="-fx-background-color: Yellow;" text="MessageBox" />
-      <Label fx:id="paneResult" layoutX="3.0" layoutY="512.0" prefHeight="147.0" prefWidth="773.0" style="-fx-background-color: Lightgreen;" />
+      <Label fx:id="paneResult" layoutX="3.0" layoutY="512.0" prefHeight="147.0" prefWidth="773.0" style="-fx-background-color: lightgreen;" />
       <Label fx:id="lblResult" layoutX="383.0" layoutY="519.0" prefHeight="82.0" prefWidth="382.0" />
       <TableView fx:id="tableVgl" layoutX="26.0" layoutY="519.0" prefHeight="134.0" prefWidth="328.0">
         <columns>
@@ -58,5 +60,13 @@
           <TableColumn fx:id="colresult" prefWidth="101.0" text="Ergebnis" />
         </columns>
       </TableView>
+      <Button fx:id="btnReloadQuiz" blendMode="DARKEN" cache="true" defaultButton="true" layoutX="390.0" layoutY="617.0" mnemonicParsing="false" onAction="#onbtnClick" text="Neues Quiz" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
+         <effect>
+            <Glow level="0.14" />
+         </effect>
+         <cursor>
+            <Cursor fx:constant="CROSSHAIR" />
+         </cursor>
+      </Button>
     </children>
 </AnchorPane>
