@@ -141,16 +141,6 @@ public class FXML_MainController implements Initializable {
     void onbtnClick(ActionEvent event) {
         if(event.getSource().equals(btnReloadQuiz)){
             initialize(null, null);
-//            obsvQuiz.clear();
-//            tableVgl.setVisible(false);
-//            btnReloadQuiz.setVisible(false);
-//            tfCandiateName.setText("");
-//            rbtnOther.selectedProperty();
-//            paneCandidate.setDisable(false);
-//            paneQuiz.setVisible(false);
-//            paneWorkspace.setVisible(false);
-//            paneResult.setVisible(false);
-//            lblResult.setVisible(false);
         }
         if (event.getSource().equals(btnCandidateOK)) {
             String rb = "";

@@ -23,6 +23,8 @@ public class Main extends Application {
         
         Scene scene = new Scene(root);
         
+        stage.setTitle("Quiz Client");
+        stage.setMaximized(true);
         stage.setScene(scene);
         stage.show();
     }
