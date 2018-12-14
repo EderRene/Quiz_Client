@@ -58,10 +58,9 @@ public class FXML_MainController implements Initializable {
     private int right = 0;
     private Candidate curCandidate = null;
 
-    private Timer timer;
-    private int currentTime;
-    TimerTask task;
-
+    private static Timer timer = null;
+    private int currentTime = 10;
+    private TimerTask task = null;
     @FXML
     private Label label;
 
@@ -109,7 +108,7 @@ public class FXML_MainController implements Initializable {
 
     @FXML
     private ToggleGroup groupSchool;
-    
+
     @FXML
     private TextField tfIp;
 
@@ -139,151 +138,65 @@ public class FXML_MainController implements Initializable {
 
     @FXML
     void onbtnClick(ActionEvent event) {
-        if(event.getSource().equals(btnReloadQuiz)){
-            initialize(null, null);
-        }
-        if (event.getSource().equals(btnCandidateOK)) {
-            String rb = "";
-            if (rbtnAHS.isSelected()) {
-                rb = "AHS";
+        try {
+            if (event.getSource().equals(btnReloadQuiz)) {
+                db = new Database();
+                right = 0;
+                setLoginLabelsEnabled();
+                initializeListsAndFields();
+                initializeTable();
             }
-            if (rbtnNMS.isSelected()) {
-                rb = "NMS";
-            }
-            if (rbtnOther.isSelected()) {
-                rb = "Other";
-            }
-            if (db.getIp() != "") {
-                if (tfCandiateName.getText().length() <= 3 || tfCandiateName.getText().isEmpty()) {
-                    lblMessage.setText("name to short");
-                } else {
-                    try {
-                        Candidate a = new Candidate(tfCandiateName.getText(), rb, (db.gethighestKandidateId()));
-                        curCandidate = a;
-                        db.addCandidate(a);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+
+            if (event.getSource().equals(btnCandidateOK)) {
+                if (validateInsertedData()) {
+                    Candidate a = new Candidate(tfCandiateName.getText(), getSelectedSchooltype(), (db.gethighestKandidateId()));
+                    curCandidate = a;
+                    db.addCandidate(a);
                     paneQuiz.setVisible(true);
                     paneCandidate.setDisable(true);
-                    try {
-                        obsvQuiz.setAll(db.getQuizData());
-                    } catch (SQLException ex) {
-                        Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
-                    }
+                    obsvQuiz.setAll(db.getQuizData());
                 }
-            } else {
-                lblMessage.setText("no ip setted");
             }
-        }
-        if (event.getSource().equals(btnQuizSelOk)) {
-            if (tfSelQuiz.getSelectionModel().getSelectedItem() != null) {
-                paneQuiz.setDisable(true);
-                paneWorkspace.setVisible(true);
-                try {
+            if (event.getSource().equals(btnQuizSelOk)) {
+                if (isQuizSelected()) {
+                    iterator = 0;
+                    paneQuiz.setDisable(true);
+                    paneWorkspace.setVisible(true);
+
                     obsvQuestion.setAll(db.getQuestions(tfSelQuiz.getSelectionModel().getSelectedItem()));
                     db.addTeilnahme(tfSelQuiz.getSelectionModel().getSelectedItem().getTid(), curCandidate.getId());
-                } catch (SQLException ex) {
-                    Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                iterator = 0;
-                lblQuestion.setText(obsvQuestion.get(iterator).toString());
-                btnAnswerOK.fire();
 
-            } else {
-                lblMessage.setText("Select a Quiz");
-            }
-        }
-        if (event.getSource().equals(btnAnswerOK)) {
-            if (iterator != 0) {
-                task.cancel();
-            }
-            if (!listviewAntwort.getSelectionModel().isEmpty()) {
-                Antwort a1 = listviewAntwort.getSelectionModel().getSelectedItem();
-                try {
-                    db.addAnwortTest(a1.getQuizId(), a1.getFrageId(), a1.getId(), curCandidate.getId());
-                    if (listviewAntwort.getSelectionModel().getSelectedItem().getRight()) {
-                        right++;
-                    }
-                } catch (SQLException ex) {
-                    Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
+                    btnAnswerOK.fire();
                 }
-            } else {
-                Antwort a1 = null;
+            }
+            if (event.getSource().equals(btnAnswerOK)) {
+                if (iterator != 0) {
+                    task.cancel();
+                    timer.cancel();
+                    timer.purge();
+                }
+                processAntwort();
+                if (obsvQuestion.size() > iterator) {
+                    showNextQuestionAndAnswers();
+                    setNewCountdown();
+                } else {
+                    showResults();
+                    task.cancel();
+                    timer.cancel();
+                    timer.purge();
+                }
             }
 
-            if (obsvQuestion.size() <= iterator) {
-                task.cancel();
-
-                timer.cancel();
-                timer.purge();
-                lblMessage.setText("Test finished...  Question: " + iterator + "/" + obsvQuestion.size() + "  Ereichte Punkte: " + right);
-                paneResult.setVisible(true);
-                lblResult.setText(right + " von " + iterator + " Antworten sind richtig!");
-                tableVgl.setVisible(true);
-                btnReloadQuiz.setVisible(true);
-                try {
-                    ResultVergleich a = null;
-                    obsvResult.setAll(db.getCompare(tfSelQuiz.getSelectionModel().getSelectedItem().getTid(), right));
-                    for (ResultVergleich rv : db.getCompare(tfSelQuiz.getSelectionModel().getSelectedItem().getTid(), obsvQuestion.size())) {
-                        if (rv.getUsername().equals(tfCandiateName.getText())) {
-                            tableVgl.getSelectionModel().select(obsvRes.indexOf(rv));
-                        }
-                    }
-
-                } catch (SQLException ex) {
-                    Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
-                    lblMessage.setText("An error happend: " + ex);
-                }
-                obsvAntwort.clear();
-                lblQuestion.setDisable(true);
-            } else {
-
-                currentTime = 10;
-                lblMessage.setText("Test started...   Question: " + iterator + "/" + obsvQuestion.size());
-                timer = new Timer();
-                task = new TimerTask() {
-                    public void run() {
-                        Platform.runLater(new Runnable() {
-                            public void run() {
-                                if (currentTime >= 0) {
-                                    lblTimer.setText("" + currentTime);
-                                    //System.out.println("time left: " + currentTime);
-                                    currentTime--;
-                                } else {
-                                    btnAnswerOK.setDisable(false);
-                                    btnAnswerOK.fire();
-                                }
-                            }
-                        });
-                    }
-                };
-                timer.schedule(task, 0, 1 * 1000);
-
-                lblQuestion.setText(obsvQuestion.get(iterator).toString());
-                try {
-
-                    obsvAntwort.setAll(db.getAntworten(obsvQuestion.get(iterator), tfSelQuiz.getSelectionModel().getSelectedItem()));
-                } catch (SQLException ex) {
-                    Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
-                }
-                iterator++;
+            if (event.getSource().equals(btnSetIp)) {
+                db.setIp(tfIp.getText());
+                lblMessage.setText("Ip setted");
             }
-        }
-
-        if (event.getSource().equals(btnSetIp)) {
-            db.setIp(tfIp.getText());
-            lblMessage.setText("Ip setted");
+        } catch (SQLException ex) {
+            Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        db=null;
-        db = new Database();
-        tfCandiateName.setText("");
-        tfCandiateName.setPromptText("Name");
-        right=0;
+    private void setLoginLabelsEnabled() {
         lblQuestion.setDisable(false);
         rbtnOther.setSelected(true);
         paneCandidate.setDisable(false);
@@ -295,18 +208,19 @@ public class FXML_MainController implements Initializable {
         paneResult.setDisable(false);
         tableVgl.setVisible(false);
         btnReloadQuiz.setVisible(false);
+        btnAnswerOK.setDisable(false);
+    }
+
+    private void initializeListsAndFields() {
+        lblMessage.setText("");
+        lblResult.setText("");
+        tfCandiateName.setText("");
+        tfCandiateName.setPromptText("Name");
+
         obsvQuiz = FXCollections.observableArrayList();
         obsvQuestion = FXCollections.observableArrayList();
         obsvAntwort = FXCollections.observableArrayList();
         obsvResult = FXCollections.observableArrayList();
-        tfSelQuiz.setItems(obsvQuiz);
-        listviewAntwort.setItems(obsvAntwort);
-        tfIp.setText("212.152.179.117");
-        //db.setIp("192.168.128.152");
-        db.setIp("212.152.179.117");
-        lblMessage.setText("");
-        lblResult.setText("");
-        
         obsvRes = new SortedList<ResultVergleich>(obsvResult,
                 (ResultVergleich stock1, ResultVergleich stock2) -> {
                     if (stock1.getErgebnis() < stock2.getErgebnis()) {
@@ -317,7 +231,13 @@ public class FXML_MainController implements Initializable {
                         return 0;
                     }
                 });
+
+        tfSelQuiz.setItems(obsvQuiz);
+        listviewAntwort.setItems(obsvAntwort);
         tableVgl.setItems(obsvRes);
+    }
+
+    private void initializeTable() {
         colUser.setCellValueFactory((new PropertyValueFactory<>("username")));
         colresult.setCellValueFactory(new PropertyValueFactory<>("ergebnis"));
         colUser.setCellFactory(column -> {
@@ -340,9 +260,112 @@ public class FXML_MainController implements Initializable {
                 }
             };
         });
-
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-        });
     }
 
+    private String getSelectedSchooltype() {
+        String selectedRbtn = "";
+        if (rbtnAHS.isSelected()) {
+            selectedRbtn = "AHS";
+        }
+        if (rbtnNMS.isSelected()) {
+            selectedRbtn = "NMS";
+        }
+        if (rbtnOther.isSelected()) {
+            selectedRbtn = "Other";
+        }
+        return selectedRbtn;
+    }
+
+    private boolean validateInsertedData() {
+        boolean validate = true;
+        if (db.getIp() == "") {
+            validate = false;
+            lblMessage.setText("no ip setted");
+        }
+        if (tfCandiateName.getText().isEmpty() || tfCandiateName.getText().length() < 3) {
+            lblMessage.setText("Name is not valid.Maybe to short");
+            validate = false;
+        }
+        return validate;
+    }
+
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        db = new Database();
+        right = 0;
+        setLoginLabelsEnabled();
+        initializeListsAndFields();
+        initializeTable();
+        tfIp.setText("212.152.179.117");
+        //db.setIp("192.168.128.152");
+        db.setIp("212.152.179.117");
+    }
+
+    private boolean isQuizSelected() {
+        boolean validate = true;
+        if (tfSelQuiz.getSelectionModel().getSelectedItem() == null) {
+            lblMessage.setText("No Quiz Selected");
+            validate = false;
+        }
+        return validate;
+    }
+
+    private void showNextQuestionAndAnswers() throws SQLException {
+        lblMessage.setText("Test started...   Question: " + iterator + "/" + obsvQuestion.size());
+        lblQuestion.setText(obsvQuestion.get(iterator).toString());
+        obsvAntwort.setAll(db.getAntworten(obsvQuestion.get(iterator), tfSelQuiz.getSelectionModel().getSelectedItem()));
+        iterator++;
+    }
+
+    private void setResultTableData() throws SQLException {
+        ResultVergleich a = null;
+        obsvResult.setAll(db.getCompare(tfSelQuiz.getSelectionModel().getSelectedItem().getTid(), right));
+    }
+
+    private void processAntwort() throws SQLException {
+        if (!listviewAntwort.getSelectionModel().isEmpty()) {
+            Antwort a1 = listviewAntwort.getSelectionModel().getSelectedItem();
+            db.addAnwortTest(a1.getQuizId(), a1.getFrageId(), a1.getId(), curCandidate.getId());
+            a1 = null;
+            if (listviewAntwort.getSelectionModel().getSelectedItem().getRight()) {
+                right++;
+            }
+        }
+    }
+
+    private void setNewCountdown() {
+        currentTime = 10;
+
+        timer = new Timer();
+        task = new TimerTask() {
+            public void run() {
+                Platform.runLater(new Runnable() {
+                    public void run() {
+                        if (currentTime >= 0) {
+                            lblTimer.setText("" + currentTime);
+                            System.out.println("time left: " + currentTime);
+                            currentTime--;
+                        } else {
+                            btnAnswerOK.setDisable(false);
+                            btnAnswerOK.fire();
+                        }
+                    }
+                });
+            }
+        };
+        timer.schedule(task, 0, 1 * 1000);
+    }
+
+    private void showResults() throws SQLException {
+        lblMessage.setText("Test finished...  Question: " + iterator + "/" + obsvQuestion.size() + "  Ereichte Punkte: " + right);
+        paneResult.setVisible(true);
+        lblResult.setText(right + " von " + iterator + " Antworten sind richtig!");
+        tableVgl.setVisible(true);
+        btnReloadQuiz.setVisible(true);
+        setResultTableData();
+        obsvAntwort.clear();
+        lblQuestion.setDisable(true);
+        btnAnswerOK.setDisable(true);
+        paneWorkspace.setDisable(true);
+    }
 }
