@@ -28,9 +28,9 @@ import java.util.ArrayList;
  */
 public class Database {
 
-    private static String ip = "212.152.179.117";
-    private static String user = "d4b22";
-    private static String pw = "d4b";
+    private static String ip = "192.168.234.223";
+    private static String user = "quiz";
+    private static String pw = "quiz";
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final String DB_URL = "jdbc:oracle:thin:";
     static final String FILENAME = "SavedQuiz";

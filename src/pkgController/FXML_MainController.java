@@ -37,10 +37,12 @@ import javafx.collections.FXCollections;
 import static javafx.collections.FXCollections.observableList;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.SortedList;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.AnchorPane;
 
 /**
  *
@@ -139,6 +141,33 @@ public class FXML_MainController implements Initializable {
     @FXML
     void onbtnClick(ActionEvent event) {
         try {
+            if (event.getSource().equals(btnCandidateOK)) {
+                if (validateInsertedData()) {
+                    Candidate a = new Candidate(tfCandiateName.getText(), getSelectedSchooltype(), db.gethighestKandidateId());
+                    curCandidate = a;
+                    db.addCandidate(a);
+                    paneQuiz.setDisable(false);
+                    paneCandidate.setDisable(true);
+                    obsvQuiz.setAll(db.getQuizData());
+                }
+            }
+            if (event.getSource().equals(btnQuizSelOk)) {
+                if (isQuizSelected()) {
+                    //iterator = 0;
+                    paneQuiz.setDisable(true);
+                    //paneWorkspace.setVisible(true);
+                    btnPlaySolo.setDisable(false);
+                    btnPlayDuo.setDisable(true);
+                    //obsvQuestion.setAll(db.getQuestions(tfSelQuiz.getSelectionModel().getSelectedItem()));
+                    db.addTeilnahme(tfSelQuiz.getSelectionModel().getSelectedItem().getTid(), curCandidate.getId());
+
+                    //btnAnswerOK.fire();
+                }
+            }
+            if (event.getSource().equals(btnPlaySolo)) {
+                AnchorPane nextPage = FXMLLoader.load(getClass().getResource("/pkgMain/resource/FXML_GameWindow.fxml")); // idk syntax -- soll auf neues FXML sheet verweisen
+                rootPane.getChildren().setAll(nextPage);                                               // alle FXML Sheets sollten den gleichen Controller haben
+            }
             if (event.getSource().equals(btnReloadQuiz)) {
                 db = new Database();
                 right = 0;
@@ -191,7 +220,7 @@ public class FXML_MainController implements Initializable {
                 db.setIp(tfIp.getText());
                 lblMessage.setText("Ip setted");
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             Logger.getLogger(FXML_MainController.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -296,9 +325,9 @@ public class FXML_MainController implements Initializable {
         setLoginLabelsEnabled();
         initializeListsAndFields();
         initializeTable();
-        tfIp.setText("212.152.179.117");
-        //db.setIp("192.168.128.152");
-        db.setIp("212.152.179.117");
+        obsvQuiz = FXCollections.observableArrayList();
+        tfSelQuiz.setItems(obsvQuiz);
+
     }
 
     private boolean isQuizSelected() {
@@ -368,4 +397,16 @@ public class FXML_MainController implements Initializable {
         btnAnswerOK.setDisable(true);
         paneWorkspace.setDisable(true);
     }
+
+
+    @FXML
+    private AnchorPane rootPane;
+
+    @FXML
+    private Button btnPlaySolo;
+
+    @FXML
+    private Button btnPlayDuo;
+
+
 }
