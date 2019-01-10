@@ -166,6 +166,7 @@ public class Database {
                 dbConnection.close();
             }
             highestid++;
+            
             return highestid;
         }
     }

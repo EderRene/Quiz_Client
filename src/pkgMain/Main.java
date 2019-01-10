@@ -18,13 +18,14 @@ import javafx.stage.Stage;
 public class Main extends Application {
     
     @Override
-    public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("resource/FXML_Main.fxml"));
+    public void start(Stage stage) throws Exception {//FXML_Main
+        Parent root = FXMLLoader.load(getClass().getResource("resource/FXML_Startup_Page.fxml"));
         
         Scene scene = new Scene(root);
         
-        stage.setTitle("Quiz Client");
+        stage.setTitle("Quiz - Master");
         stage.setMaximized(true);
+        stage.setFullScreen(true);
         stage.setScene(scene);
         stage.show();
     }

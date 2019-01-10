@@ -18,7 +18,7 @@
 <AnchorPane id="AnchorPane" prefHeight="735.0" prefWidth="779.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pkgController.FXML_MainController">
     <children>
         <Label fx:id="label" layoutX="126" layoutY="120" minHeight="16" minWidth="69" />
-      <Pane fx:id="paneCandidate" layoutX="7.0" layoutY="14.0" prefHeight="98.0" prefWidth="765.0" style="-fx-background-color: Red;">
+      <Pane fx:id="paneCandidate" layoutX="7.0" layoutY="14.0" prefHeight="98.0" prefWidth="765.0" style="-fx-background-color: Red;" AnchorPane.leftAnchor="7.0" AnchorPane.rightAnchor="7.0">
          <children>
             <TextField fx:id="tfCandiateName" layoutX="14.0" layoutY="36.0" prefHeight="26.0" prefWidth="371.0" promptText="canditate's name" />
             <RadioButton fx:id="rbtnAHS" layoutX="407.0" layoutY="40.0" mnemonicParsing="false" text="Ahs">

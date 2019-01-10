@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" fx:id="rootPane" prefHeight="735.0" prefWidth="1308.0" style="-fx-background-image: backgroundImage.jpg;" styleClass="anchor" stylesheets="@stylesheet.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="pkgController.FXML_Startup_PageController">
+   <children>
+      <ImageView fitHeight="141.0" fitWidth="988.0" layoutX="14.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@QuizMaster.png" />
+         </image></ImageView>
+      <Button fx:id="btnPlaySolo" disable="true" layoutX="46.0" layoutY="522.0" mnemonicParsing="false" onAction="#onbtnClick" prefHeight="76.0" prefWidth="321.0" styleClass="dark-blue" text="Singleplayer" />
+      <Button fx:id="btnPlayDuo" disable="true" layoutX="45.0" layoutY="636.0" mnemonicParsing="false" onAction="#onbtnClick" prefHeight="76.0" prefWidth="321.0" styleClass="dark-blue" text="Multiplayer" />
+      <Pane fx:id="paneCandidate" layoutX="34.0" layoutY="154.0" prefHeight="98.0" prefWidth="954.0">
+         <children>
+            <TextField fx:id="tfCandiateName" layoutX="16.0" layoutY="41.0" prefHeight="29.0" prefWidth="373.0" promptText="Canditate's name" />
+            <RadioButton fx:id="rbtnAHS" layoutX="407.0" layoutY="40.0" mnemonicParsing="false" text="Ahs" textFill="WHITE">
+               <toggleGroup>
+                  <ToggleGroup fx:id="groupSchool" />
+               </toggleGroup>
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </RadioButton>
+            <RadioButton fx:id="rbtnNMS" layoutX="500.0" layoutY="40.0" mnemonicParsing="false" text="NMS" textFill="WHITE" toggleGroup="$groupSchool">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </RadioButton>
+            <RadioButton fx:id="rbtnOther" layoutX="599.0" layoutY="40.0" mnemonicParsing="false" selected="true" text="Gymnasium" textFill="WHITE" toggleGroup="$groupSchool">
+               <font>
+                  <Font size="22.0" />
+               </font>
+            </RadioButton>
+            <Button fx:id="btnCandidateOK" layoutX="833.0" layoutY="40.0" mnemonicParsing="false" onAction="#onbtnClick" text="OK" />
+         </children>
+      </Pane>
+      <Pane fx:id="paneQuiz" disable="true" layoutX="47.0" layoutY="242.0" prefHeight="54.0" prefWidth="893.0" style="-: ;">
+         <children>
+            <ComboBox fx:id="tfSelQuiz" layoutX="2.0" layoutY="9.0" prefHeight="26.0" prefWidth="371.0" promptText="Select a Quiz" />
+            <Button fx:id="btnQuizSelOk" layoutX="820.0" layoutY="15.0" mnemonicParsing="false" onAction="#onbtnClick" text="OK" />
+         </children>
+      </Pane>
+      <Label fx:id="lblMessage" layoutX="908.0" layoutY="671.0" prefHeight="36.0" prefWidth="352.0" style="-fx-background-color: Yellow;" text="MessageBox" AnchorPane.bottomAnchor="28.0" AnchorPane.rightAnchor="48.0" />
+   </children>
+</AnchorPane>
